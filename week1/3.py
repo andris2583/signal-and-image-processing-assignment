@@ -22,7 +22,7 @@ def one():
     def median_filter(image, N):
         return median(image, disk(N))
     
-    kernel_size = 3
+    kernel_size = 25
     mean_filtered_sp = mean_filter(salt_pepper_noise, kernel_size)
     median_filtered_sp = median_filter(salt_pepper_noise, kernel_size)
     mean_filtered_gaussian = mean_filter(gaussian_noise, kernel_size)

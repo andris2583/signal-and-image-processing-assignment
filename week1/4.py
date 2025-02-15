@@ -44,5 +44,17 @@ def two():
   ax[1].axis("off")
 
   plt.show()
+  
+def pseudo_inverse(cdf):
+
+    cdf = cdf / cdf[-1]
+    
+    def calculate_pseudo_inverse(l):
+        return np.min(np.where(cdf >= l))
+    
+    l_values = np.linspace(0, 1, num=256)
+    pseudo_inverse_values = np.array([calculate_pseudo_inverse(l) for l in l_values])
+    
+    return pseudo_inverse_values
 
 two()

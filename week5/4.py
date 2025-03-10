@@ -36,10 +36,10 @@ def one():
 def three():
   sigma = 1
   tau_vals = np.linspace(0, 5, 100)
-  H_vals = (tau_vals**2) * (2/(sigma**2+tau_vals**2)**4 - 2/(sigma**2+tau_vals**2))
+  H_vals = - (2 * tau_vals**2) / (sigma**2 + tau_vals**2)
 
   plt.figure(figsize=(8, 5))
-  plt.plot(tau_vals, H_vals)
+  plt.plot(tau_vals, H_vals, label=r'$H(0,0,\tau) = -\frac{2\tau^2}{\sigma^2+\tau^2}$')
   plt.xlabel(r'$\tau$')
   plt.ylabel(r'$H(0,0,\tau)$')
   plt.title('Scale-normalized Laplacian at (0,0) as a function of scale')
@@ -51,7 +51,7 @@ def laplacian_of_gaussian(image, sigma):
     return sigma**2 * laplace(gaussian(image, sigma=sigma))
 
 def four():
-    image = io.imread('sunflower.tiff', as_gray=True)
+    image = io.imread('/content/drive/Othercomputers/Laptop/Documents/KU/SIP/Week 5/Assignment/sunflower.tiff', as_gray=True)
 
     sigma_values = np.linspace(1, 10, 10)
     scale_space = np.zeros((image.shape[0], image.shape[1], len(sigma_values)))
@@ -59,21 +59,37 @@ def four():
     for i, sigma in enumerate(sigma_values):
         scale_space[:, :, i] = laplacian_of_gaussian(image, sigma)
 
-    blobs = peak_local_max(np.abs(scale_space), num_peaks=150, threshold_abs=0.01, footprint=np.ones((3, 3, 3)))
+    maxima = peak_local_max(scale_space, num_peaks=150, threshold_abs=0.01, footprint=np.ones((3,3,3)))
+    minima = peak_local_max(-scale_space, num_peaks=150, threshold_abs=0.01, footprint=np.ones((3,3,3)))
 
-    y_coords, x_coords, scale_indices = blobs.T
-    detected_scales = sigma_values[scale_indices]
+    y_max, x_max, scale_max = maxima.T
+    y_min, x_min, scale_min = minima.T
+    detected_scales_max = sigma_values[scale_max]
+    detected_scales_min = sigma_values[scale_min]
 
-    fig, ax = plt.subplots(figsize=(8, 8))
+    fig, ax = plt.subplots(figsize=(10, 10))
     ax.imshow(image, cmap='gray')
 
-    for x, y, s in zip(x_coords, y_coords, detected_scales):
+    max_patches = []
+    for x, y, s in zip(x_max, y_max, detected_scales_max):
         circle = plt.Circle((x, y), s, color='red', fill=False, linewidth=1.5)
         ax.add_patch(circle)
+        max_patches.append(circle)
+
+    min_patches = []
+    for x, y, s in zip(x_min, y_min, detected_scales_min):
+        circle = plt.Circle((x, y), s, color='blue', fill=False, linewidth=1.5)
+        ax.add_patch(circle)
+        min_patches.append(circle)
+
+    max_legend = plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='red', markersize=10, label='Maxima (Bright Blobs)')
+    min_legend = plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='blue', markersize=10, label='Minima (Dark Blobs)')
+
+    plt.legend(handles=[max_legend, min_legend], loc="lower right")
 
     plt.title("Blob Detection with Scale-Space")
     plt.show()
-    
-    return blobs
+
+    return 0
 
 four()

@@ -50,6 +50,8 @@ for img_path, img_name in zip(image_paths, image_names):
     plt.tight_layout()
     plt.savefig(f"{img_name}_otsu.png")
     plt.show()
+    
+plt.imsave('segmented.png', binary_seg, cmap='gray')
 
 """### 1.2"""
 
